@@ -4011,6 +4011,7 @@ dependencies = [
  "lance-arrow",
  "lance-core",
  "lance-namespace",
+ "libc",
  "log",
  "object_store",
  "object_store_opendal",
