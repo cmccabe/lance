@@ -13,9 +13,12 @@ use object_store::path::Path;
 use snafu::location;
 use url::Url;
 
+/// The environment variable which associates dynamically loaded object store providers with prefixes.
+/// For example 'foo:/my/library/path.so'
 const LANCE_DYNAMICALLY_LOADED_OBJECT_STORE_PROVIDERS: &str =
     "LANCE_DYNAMICALLY_LOADED_OBJECT_STORE_PROVIDERS";
 
+/// The C function name which we use to load the new object store provider from the dynamically loaded library.
 const CREATE_NEW_OBJECT_STORE_PROVIDER: &str = "create_new_object_store_provider";
 
 pub fn dynamic_providers_from_env() -> Result<Vec<DynamicBlobStoreProvider>> {
