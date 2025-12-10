@@ -4778,7 +4778,6 @@ dependencies = [
  "lance-arrow",
  "lance-core",
  "lance-namespace",
- "libc",
  "log",
  "mock_instant",
  "mockall",

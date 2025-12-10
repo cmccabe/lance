@@ -10,8 +10,6 @@ use object_store::path::Path;
 use snafu::location;
 use url::Url;
 
-use crate::object_store::providers::dynamic::dynamic_providers_from_env;
-
 use super::{tracing::ObjectStoreTracingExt, ObjectStore, ObjectStoreParams};
 use lance_core::error::{Error, LanceOptionExt, Result};
 
@@ -19,7 +17,6 @@ use lance_core::error::{Error, LanceOptionExt, Result};
 pub mod aws;
 #[cfg(feature = "azure")]
 pub mod azure;
-pub mod dynamic;
 #[cfg(feature = "gcp")]
 pub mod gcp;
 pub mod local;
@@ -292,9 +289,6 @@ impl Default for ObjectStoreRegistry {
         providers.insert("gs".into(), Arc::new(gcp::GcsStoreProvider));
         #[cfg(feature = "oss")]
         providers.insert("oss".into(), Arc::new(oss::OssStoreProvider));
-        for dynamic_provider in dynamic_providers_from_env().unwrap() {
-            providers.insert(dynamic_provider.scheme().into(), Arc::new(dynamic_provider));
-        }
         Self {
             providers: RwLock::new(providers),
             active_stores: RwLock::new(HashMap::new()),
