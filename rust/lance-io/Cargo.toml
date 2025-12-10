@@ -50,6 +50,7 @@ tonic = { version = "0.13.1" }
 anyhow = "1"
 uuid.workspace = true
 serde_json.workspace = true
+siphasher = "1"
 
 [dev-dependencies]
 criterion.workspace = true

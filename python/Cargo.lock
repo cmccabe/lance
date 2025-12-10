@@ -4270,6 +4270,7 @@ dependencies = [
  "serde",
  "serde_json",
  "shellexpand",
+ "siphasher",
  "snafu",
  "tokio",
  "tonic",

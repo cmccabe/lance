@@ -9,8 +9,7 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use uuid::Uuid;
 
-use crate::object_store::providers::avalon::GetClusterResponse;
-use crate::object_store::providers::avalon::GetClusterResponseNode;
+use super::{GetClusterResponse, GetClusterResponseNode};
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AvalonCluster {
