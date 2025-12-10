@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package avalon;
+
+// Fetch Data and ObjectMeta
+message FetchChunkRequest {
+    string prefix = 1;
+    string path = 2;
+    uint64 offset = 3;
+    uint32 length = 4;
+}
+
+// Fetch Data and ObjectMeta
+message FetchChunkResponse {
+    // The length of the whole object.
+    uint64 object_size = 1;
+    // The mtime of the whole object.
+    uint32 object_mtime = 2;
+    // The bytes that were fetched.
+    bytes payload = 3;
+}
+
+// Get current cluster topology
+message GetClusterRequest {
+}
+
+// Get current cluster topology
+message GetClusterResponse {
+    // The unique ID that identifies this cluster (high 64 bits).
+    fixed64 cluster_id_hi = 1;
+    // The unique ID that identifies this cluster (low 64 bits).
+    fixed64 cluster_id_lo = 2;
+    // The chunk size to use in hashing.
+    uint32 client_chunk_size = 3;
+    // The index of the node returning this response. 
+    uint32 source_node_id = 4;
+    // The nodes currently in this cluster.
+    repeated GetClusterResponseNode nodes = 5;
+}
+
+// A node in the Avalon cluster.
+message GetClusterResponseNode {
+    uint32 id = 1;
+    string host = 2;
+    uint32 port = 3;
+    bool up = 4;
+}
+
+// Ask for a node to be permanently removed.
+message RemoveNodeRequest {
+    uint32 id = 1;
+}
+
+// Ask for a node to be permanently removed.
+message RemoveNodeResponse {
+}
+
+service Avalon {
+    rpc FetchChunk (FetchChunkRequest) returns (FetchChunkResponse) {}
+    rpc GetCluster (GetClusterRequest) returns (GetClusterResponse) {}
+    rpc RemoveNode (RemoveNodeRequest) returns (RemoveNodeResponse) {}
+    // TODO: add Prewarm
+    // TODO: add Open / Close to get temporary handles. Or maybe have sessions.
+}

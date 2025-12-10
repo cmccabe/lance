@@ -12,7 +12,6 @@ categories.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-
 object_store = { workspace = true }
 opendal = { workspace = true, optional = true }
 object_store_opendal = { workspace = true, optional = true }
@@ -73,3 +72,8 @@ oss = ["dep:opendal", "opendal/services-oss", "dep:object_store_opendal"]
 
 [lints]
 workspace = true
+
+[build-dependencies]
+prost-build.workspace = true
+protobuf-src = { version = "2.1", optional = true }
+tonic-build = { version = "0.14.2" }
