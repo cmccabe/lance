@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-FileCopyrightText: Copyright The Lance Authors
 
+use std::io::Write;
+
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock, Weak},
