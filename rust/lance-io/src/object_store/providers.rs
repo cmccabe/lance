@@ -13,6 +13,7 @@ use url::Url;
 use super::{tracing::ObjectStoreTracingExt, ObjectStore, ObjectStoreParams};
 use lance_core::error::{Error, LanceOptionExt, Result};
 
+pub mod avalon;
 #[cfg(feature = "aws")]
 pub mod aws;
 #[cfg(feature = "azure")]

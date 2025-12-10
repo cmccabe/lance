@@ -46,6 +46,7 @@ tracing.workspace = true
 url.workspace = true
 path_abs.workspace = true
 rand.workspace = true
+tonic = { version = "0.13.1" }
 
 [dev-dependencies]
 criterion.workspace = true
@@ -75,5 +76,4 @@ workspace = true
 [build-dependencies]
 prost-build.workspace = true
 protobuf-src = { version = "2.1" }
-tonic = { version = "0.14.2" }
-tonic-prost-build = { version = "0.14.2" }
+tonic-build = { version = "0.13.1" }

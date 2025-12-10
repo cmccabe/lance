@@ -6,7 +6,7 @@ fn main() -> Result<()> {
     // Use vendored protobuf compiler if requested.
     std::env::set_var("PROTOC", protobuf_src::protoc());
 
-    tonic_prost_build::configure()
+    tonic_build::configure()
         .build_client(true)
         .build_server(true)
         .protoc_arg("--experimental_allow_proto3_optional")
