@@ -2,14 +2,15 @@ use anyhow::bail;
 use anyhow::Result;
 use serde::Deserialize;
 use serde::Serialize;
-use sophon_protos::avalon::GetClusterResponse;
-use sophon_protos::avalon::GetClusterResponseNode;
 use std::collections::BTreeMap;
 use std::collections::BTreeSet;
 use std::fmt;
 use std::fmt::Display;
 use std::fmt::Formatter;
 use uuid::Uuid;
+
+use crate::object_store::providers::avalon::GetClusterResponse;
+use crate::object_store::providers::avalon::GetClusterResponseNode;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AvalonCluster {
