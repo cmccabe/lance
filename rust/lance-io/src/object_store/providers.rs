@@ -10,6 +10,8 @@ use object_store::path::Path;
 use snafu::location;
 use url::Url;
 
+use crate::object_store::providers::avalon::provider::AvalonObjectStoreProvider;
+
 use super::{tracing::ObjectStoreTracingExt, ObjectStore, ObjectStoreParams};
 use lance_core::error::{Error, LanceOptionExt, Result};
 
@@ -290,6 +292,7 @@ impl Default for ObjectStoreRegistry {
         providers.insert("gs".into(), Arc::new(gcp::GcsStoreProvider));
         #[cfg(feature = "oss")]
         providers.insert("oss".into(), Arc::new(oss::OssStoreProvider));
+        providers.insert("avalon".into(), Arc::new(AvalonObjectStoreProvider));
         Self {
             providers: RwLock::new(providers),
             active_stores: RwLock::new(HashMap::new()),
