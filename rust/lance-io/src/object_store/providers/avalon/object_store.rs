@@ -129,6 +129,7 @@ impl object_store::ObjectStore for AvalonObjectStore {
         location: &Path,
         options: GetOptions,
     ) -> object_store::Result<GetResult> {
+        println!("DEBUG2: get_opts: location: {}, options: {:?}", location, options);
         if options.version.is_some() {
             return object_store::Result::Err(object_store::Error::NotSupported {
                 source: Box::new(std::io::Error::other("object versioning is not supported.")),
