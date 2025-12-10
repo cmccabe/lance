@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use lance_core::error::{Error, Result};
 use snafu::location;
-use tracing::info;
+use log::info;
 use url::Url;
 
 use crate::object_store::{ObjectStore, ObjectStoreParams, ObjectStoreProvider, ObjectStoreRegistry};

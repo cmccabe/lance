@@ -292,6 +292,8 @@ impl Default for ObjectStoreRegistry {
         providers.insert("gs".into(), Arc::new(gcp::GcsStoreProvider));
         #[cfg(feature = "oss")]
         providers.insert("oss".into(), Arc::new(oss::OssStoreProvider));
+        println!("DEBUG2: INSTALLING AVALON OBJECT STORE PROVIDER.");
+        std::io::stdout().flush().unwrap();
         providers.insert("avalon".into(), Arc::new(AvalonObjectStoreProvider));
         Self {
             providers: RwLock::new(providers),

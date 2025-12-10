@@ -12,7 +12,8 @@ use std::ops::Range;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Arc;
 use tonic::Status;
-use tracing::error;
+use log::error;
+use log::info;
 use url::Url;
 
 use crate::object_store::{DEFAULT_DOWNLOAD_RETRY_COUNT, ObjectStore};
@@ -102,6 +103,7 @@ impl object_store::ObjectStore for AvalonObjectStore {
         payload: PutPayload,
         opts: PutOptions,
     ) -> object_store::Result<PutResult> {
+        info!("DEBUG2: put_opts: location: {}, opts: {:?}", location, opts);
         self.inner.inner.put_opts(location, payload, opts).await
     }
 
@@ -109,6 +111,7 @@ impl object_store::ObjectStore for AvalonObjectStore {
         &self,
         location: &Path,
     ) -> object_store::Result<Box<dyn MultipartUpload>> {
+        info!("DEBUG2: put_multipart: location: {}", location);
         self.inner.inner.put_multipart(location).await
     }
 
@@ -117,10 +120,12 @@ impl object_store::ObjectStore for AvalonObjectStore {
         location: &Path,
         opts: PutMultipartOptions,
     ) -> object_store::Result<Box<dyn MultipartUpload>> {
+        info!("DEBUG2: put_multipart_opts: location: {}, opts: {:?}", location, opts);
         self.inner.inner.put_multipart_opts(location, opts).await
     }
 
     async fn get(&self, location: &Path) -> object_store::Result<GetResult> {
+        info!("DEBUG2: get: location: {}", location);
         self.get_opts(location, GetOptions::default()).await
     }
 
@@ -129,7 +134,7 @@ impl object_store::ObjectStore for AvalonObjectStore {
         location: &Path,
         options: GetOptions,
     ) -> object_store::Result<GetResult> {
-        println!("DEBUG2: get_opts: location: {}, options: {:?}", location, options);
+        info!("DEBUG2: get_opts: location: {}, options: {:?}", location, options);
         if options.version.is_some() {
             return object_store::Result::Err(object_store::Error::NotSupported {
                 source: Box::new(std::io::Error::other("object versioning is not supported.")),
@@ -234,6 +239,7 @@ impl object_store::ObjectStore for AvalonObjectStore {
 
     async fn get_range(&self, location: &Path, range: Range<u64>) -> object_store::Result<Bytes> {
         // Default falls back on get_opts.
+        info!("DEBUG2: get: get_range location: {}, range: {:?}", location, range);
         self.inner.inner.get_range(location, range).await
     }
 
@@ -243,15 +249,18 @@ impl object_store::ObjectStore for AvalonObjectStore {
         ranges: &[Range<u64>],
     ) -> object_store::Result<Vec<Bytes>> {
         // Default falls back on get_range and ultimately get_opts.
+        info!("DEBUG2: get_ranges location: {}, ranges: {:?}", location, ranges);
         self.inner.inner.get_ranges(location, ranges).await
     }
 
     async fn head(&self, location: &Path) -> object_store::Result<ObjectMeta> {
         // Default falls back on get_range.
+        info!("DEBUG2: head location: {}", location);
         self.inner.inner.head(location).await
     }
 
     async fn delete(&self, location: &Path) -> object_store::Result<()> {
+        info!("DEBUG2: delete: location: {}", location);
         self.inner.inner.delete(location).await
     }
 
@@ -259,10 +268,12 @@ impl object_store::ObjectStore for AvalonObjectStore {
         &'a self,
         locations: BoxStream<'a, object_store::Result<Path>>,
     ) -> BoxStream<'a, object_store::Result<Path>> {
+        info!("DEBUG2: delete_stream");
         self.inner.inner.delete_stream(locations)
     }
 
     fn list(&self, prefix: Option<&Path>) -> BoxStream<'static, object_store::Result<ObjectMeta>> {
+        info!("DEBUG2: list: prefix: {:?}", prefix);
         self.inner.inner.list(prefix)
     }
 
@@ -271,26 +282,32 @@ impl object_store::ObjectStore for AvalonObjectStore {
         prefix: Option<&Path>,
         offset: &Path,
     ) -> BoxStream<'static, object_store::Result<ObjectMeta>> {
+        info!("DEBUG2: list_with_offset: prefix: {:?}, offset: {}", prefix, offset);
         self.inner.inner.list_with_offset(prefix, offset)
     }
 
     async fn list_with_delimiter(&self, prefix: Option<&Path>) -> object_store::Result<ListResult> {
+        info!("DEBUG2: list_with_delimiter: prefix: {:?}", prefix);
         self.inner.inner.list_with_delimiter(prefix).await
     }
 
     async fn copy(&self, from: &Path, to: &Path) -> object_store::Result<()> {
+        info!("DEBUG2: copy: from: {}, to: {}", from, to);
         self.inner.inner.copy(from, to).await
     }
 
     async fn rename(&self, from: &Path, to: &Path) -> object_store::Result<()> {
+        info!("DEBUG2: rename: from: {}, to: {}", from, to);
         self.inner.inner.rename(from, to).await
     }
 
     async fn copy_if_not_exists(&self, from: &Path, to: &Path) -> object_store::Result<()> {
+        info!("DEBUG2: copy_if_not_exists: from: {}, to: {}", from, to);
         self.inner.inner.copy_if_not_exists(from, to).await
     }
 
     async fn rename_if_not_exists(&self, from: &Path, to: &Path) -> object_store::Result<()> {
+        info!("DEBUG2: rename_if_not_exists: from: {}, to: {}", from, to);
         self.inner.inner.rename_if_not_exists(from, to).await
     }
 }

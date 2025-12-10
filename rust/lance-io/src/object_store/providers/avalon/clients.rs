@@ -9,9 +9,9 @@ use tokio::sync::Mutex;
 use tonic::transport::Endpoint;
 use tonic::Code;
 use tonic::Status;
-use tracing::debug;
-use tracing::error;
-use tracing::info;
+use log::debug;
+use log::error;
+use log::info;
 
 use crate::object_store::providers::avalon::avalon_client;
 use crate::object_store::providers::avalon::avalon_client::AvalonClient;
