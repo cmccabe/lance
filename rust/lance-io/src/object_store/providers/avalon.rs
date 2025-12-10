@@ -1,3 +1,4 @@
+pub mod clients;
 pub mod cluster;
 pub mod hash;
 
