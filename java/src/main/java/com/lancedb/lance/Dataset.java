@@ -584,7 +584,9 @@ public class Dataset implements Closeable {
 
   private native List<Version> nativeListVersions();
 
-  /** @return the latest version of the dataset. */
+  /**
+   * @return the latest version of the dataset.
+   */
   public long latestVersion() {
     try (LockManager.WriteLock writeLock = lockManager.acquireWriteLock()) {
       Preconditions.checkArgument(nativeDatasetHandle != 0, "Dataset is closed");
@@ -826,7 +828,9 @@ public class Dataset implements Closeable {
 
   private native Transaction nativeReadTransaction();
 
-  /** @return all the created indexes names */
+  /**
+   * @return all the created indexes names
+   */
   public List<String> listIndexes() {
     try (LockManager.ReadLock readLock = lockManager.acquireReadLock()) {
       Preconditions.checkArgument(nativeDatasetHandle != 0, "Dataset is closed");

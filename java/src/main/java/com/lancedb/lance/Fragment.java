@@ -123,7 +123,9 @@ public class Fragment {
     return fragmentMetadata.getId();
   }
 
-  /** @return row counts in this Fragment */
+  /**
+   * @return row counts in this Fragment
+   */
   public int countRows() {
     return countRowsNative(dataset, fragmentMetadata.getId());
   }
