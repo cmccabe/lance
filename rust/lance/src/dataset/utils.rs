@@ -4,6 +4,7 @@
 use crate::Result;
 use arrow_array::{RecordBatch, UInt64Array};
 use arrow_schema::{Schema as ArrowSchema, SchemaRef as ArrowSchemaRef};
+use async_trait::async_trait;
 use datafusion::error::Result as DFResult;
 use datafusion::physical_plan::SendableRecordBatchStream;
 use datafusion::physical_plan::stream::RecordBatchStreamAdapter;
@@ -13,9 +14,15 @@ use lance_arrow::json::{
     is_arrow_json_field, is_json_field,
 };
 use lance_core::ROW_ID;
+use lance_core::Result as LanceCoreResult;
+use lance_io::object_store::{ObjectStoreParams, StorageOptionsAccessor, StorageOptionsProvider};
+use lance_table::format::BasePath;
 use lance_table::rowids::{RowIdIndex, RowIdSequence};
 use roaring::RoaringTreemap;
 use std::borrow::Cow;
+use std::collections::HashMap;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 use std::sync::mpsc::Receiver;
 
@@ -136,6 +143,100 @@ impl Default for CapturedRowIds {
     fn default() -> Self {
         Self::AddressStyle(RoaringTreemap::new())
     }
+}
+
+#[derive(Debug)]
+struct BasePathStorageOptionsProvider {
+    initial_options: HashMap<String, String>,
+    base_storage_options: HashMap<String, String>,
+    provider: Arc<dyn StorageOptionsProvider>,
+}
+
+impl BasePathStorageOptionsProvider {
+    fn new(
+        initial_options: HashMap<String, String>,
+        base_storage_options: HashMap<String, String>,
+        provider: Arc<dyn StorageOptionsProvider>,
+    ) -> Self {
+        Self {
+            initial_options,
+            base_storage_options,
+            provider,
+        }
+    }
+}
+
+#[async_trait]
+impl StorageOptionsProvider for BasePathStorageOptionsProvider {
+    async fn fetch_storage_options(&self) -> LanceCoreResult<Option<HashMap<String, String>>> {
+        let fetched_options = self.provider.fetch_storage_options().await?;
+        let mut merged = self.initial_options.clone();
+        if let Some(fetched_options) = fetched_options {
+            merged.extend(fetched_options);
+        }
+        merged.extend(self.base_storage_options.clone());
+        Ok(Some(merged))
+    }
+
+    fn provider_id(&self) -> String {
+        format!(
+            "base-path-storage-options[initial={},base={},provider={}]",
+            stable_options_hash(&self.initial_options),
+            stable_options_hash(&self.base_storage_options),
+            self.provider.provider_id()
+        )
+    }
+}
+
+fn stable_options_hash(options: &HashMap<String, String>) -> String {
+    let mut hasher = DefaultHasher::new();
+    let mut keys = options.keys().collect::<Vec<_>>();
+    keys.sort();
+    for key in keys {
+        key.hash(&mut hasher);
+        options.get(key).hash(&mut hasher);
+    }
+    format!("{:x}", hasher.finish())
+}
+
+pub(crate) fn object_store_params_for_base_path(
+    base_path: &BasePath,
+    store_params: Option<&ObjectStoreParams>,
+) -> ObjectStoreParams {
+    let mut merged_params = store_params.cloned().unwrap_or_default();
+    if base_path.storage_options.is_empty() {
+        return merged_params;
+    }
+
+    let initial_options = merged_params.storage_options().cloned().unwrap_or_default();
+    let mut merged_initial_options = initial_options.clone();
+    merged_initial_options.extend(base_path.storage_options.clone());
+
+    let merged_accessor =
+        if let Some(existing_accessor) = merged_params.storage_options_accessor.take() {
+            if let Some(provider) = existing_accessor.provider().cloned() {
+                let provider = Arc::new(BasePathStorageOptionsProvider::new(
+                    initial_options,
+                    base_path.storage_options.clone(),
+                    provider,
+                ));
+                Arc::new(StorageOptionsAccessor::with_initial_and_provider(
+                    merged_initial_options,
+                    provider,
+                ))
+            } else {
+                Arc::new(StorageOptionsAccessor::with_static_options(
+                    merged_initial_options,
+                ))
+            }
+        } else {
+            Arc::new(StorageOptionsAccessor::with_static_options(
+                base_path.storage_options.clone(),
+            ))
+        };
+
+    merged_params.storage_options_accessor = Some(merged_accessor);
+    merged_params
 }
 
 /// Adapter around the existing JSON conversion utilities.
